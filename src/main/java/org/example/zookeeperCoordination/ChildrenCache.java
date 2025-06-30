@@ -6,6 +6,10 @@ public class ChildrenCache {
 
     List<String> children;
 
+    public ChildrenCache() {
+        this.children = null;
+    }
+
     public ChildrenCache(List<String> children) {
         this.children = children;
     }
@@ -14,7 +18,7 @@ public class ChildrenCache {
         return null;
     }
 
-    public List<String> addAndSet(List<String> children) {
+    public List<String> addedAndSet(List<String> children) {
         return null;
     }
 

@@ -372,7 +372,7 @@ public class Master implements Watcher{
 
                         toProcess = list;
                     } else {
-                        toProcess = tasksCache.addAndSet(list);
+                        toProcess = tasksCache.addedAndSet(list);
                     }
                     if(toProcess != null) {
                         assignTasks(toProcess);
