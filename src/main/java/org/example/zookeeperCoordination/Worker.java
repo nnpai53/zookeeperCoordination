@@ -5,6 +5,7 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
@@ -14,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
-public class Worker implements Watcher {
+public class Worker implements Watcher, Closeable {
 
     private static Logger LOG = LoggerFactory.getLogger(Worker.class);
 
@@ -22,8 +23,8 @@ public class Worker implements Watcher {
     String hostPort;
     Random random = new Random();
     String serverId = Integer.toHexString(random.nextInt());
-    boolean connected = false;
-    boolean expired = false;
+    volatile boolean connected = false;
+    volatile boolean expired = false;
     String status;
     private int executionCount;
     ThreadPoolExecutor threadPoolExecutor;
@@ -93,7 +94,7 @@ public class Worker implements Watcher {
     };
 
     synchronized private void updateStatus(String status){
-        if(status == this.status) {
+        if(status.equalsIgnoreCase(this.status)) {
             zk.setData("/workers/worker-" + serverId, status.getBytes(), -1, statusUpdateCallback, status);
         }
     }
@@ -289,6 +290,7 @@ public class Worker implements Watcher {
         }
     }
 
+    @Override
     public void close(){
         LOG.info("Closing");
         try {

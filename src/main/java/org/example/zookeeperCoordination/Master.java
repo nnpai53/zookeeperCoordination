@@ -7,13 +7,14 @@ import org.example.zookeeperCoordination.recovery.RecoveryCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
 import static org.apache.zookeeper.ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
-public class Master implements Watcher{
+public class Master implements Watcher, Closeable {
 
     private static Logger LOG = LoggerFactory.getLogger(Master.class);
 
@@ -542,6 +543,7 @@ public class Master implements Watcher{
         return expired;
     }
 
+    @Override
     public void close() {
         if(zk != null) {
             try {
