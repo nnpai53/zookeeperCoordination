@@ -5,7 +5,6 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
-import org.example.zookeeperCoordination.Master;
 import org.example.zookeeperCoordination.RecreateTaskContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,6 +219,64 @@ public class RecoveredAssignments {
         zk.delete(path, -1, taskDeletionCallback, null);
     }
 
-    
+    AsyncCallback.VoidCallback taskDeletionCallback = new AsyncCallback.VoidCallback() {
+        @Override
+        public void processResult(int i, String s, Object o) {
+            switch (KeeperException.Code.get(i)){
+                case CONNECTIONLOSS:
+                    deleteAssignment(s);
+                    break;
+
+                case OK:
+                    LOG.info("Task correctly deleted: " +s);
+                    break;
+
+                default:
+                    LOG.error("Failed to delete task data " + KeeperException.create(KeeperException.Code.get(i),s));
+            }
+        }
+    };
+
+    void getStatuses(){
+        zk.getChildren("/status", false, statusCallback, null);
+    }
+
+    AsyncCallback.ChildrenCallback statusCallback = new AsyncCallback.ChildrenCallback() {
+        @Override
+        public void processResult(int i, String s, Object o, List<String> list) {
+            switch (KeeperException.Code.get(i)){
+                case CONNECTIONLOSS:
+                    getStatuses();
+                    break;
+
+                case OK:
+                    LOG.info("Processing assignments for recovery");
+                    status = list;
+                    processAssignments();
+                    break;
+
+                default:
+                    LOG.error("getChildren failed", KeeperException.create(KeeperException.Code.get(i), s));
+                    cb.recoveryComplete(RecoveryCallback.FAILED, null);
+            }
+        }
+    };
+
+    private void processAssignments(){
+        LOG.info("Size of tasks: " + tasks.size());
+        for(String s:  assignments) {
+            LOG.info("Assignment: " + s);
+            deleteAssignment("/tasks/" + s);
+            tasks.remove(s);
+        }
+        LOG.info("Size of tasks after assignment filtering: " + tasks.size());
+        for(String s: status){
+            LOG.info("Checking task: {}", s);
+            deleteAssignment("/tasks/" + s);
+            tasks.remove(s);
+        }
+        LOG.info("Size of tasks after status filtering: " + tasks.size());
+        cb.recoveryComplete(RecoveryCallback.OK, tasks);
+    }
 
 }
