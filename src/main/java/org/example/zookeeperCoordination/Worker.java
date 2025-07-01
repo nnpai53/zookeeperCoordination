@@ -216,7 +216,7 @@ public class Worker implements Watcher, Closeable {
                             zk.create("/status/" + (String) ctx, "done".getBytes(), OPEN_ACL_UNSAFE, CreateMode.PERSISTENT,taskStatusCreateCallback,null);
                             zk.delete("/assign/worker-" + serverId + "/" + (String) ctx, -1, taskVoidCallback, null);
                         }
-                    });
+                    }.init(bytes,o));
                     break;
 
                 default:

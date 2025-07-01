@@ -414,7 +414,7 @@ public class Master implements Watcher, Closeable {
                     /*
                      * Assign task to randomly chosen worker
                      */
-                    String assignmentPath = "/assign" + designatedWorker + "/" + (String) o;
+                    String assignmentPath = "/assign/" + designatedWorker + "/" + (String) o;
                     createAssignment(assignmentPath, bytes);
                     break;
 
