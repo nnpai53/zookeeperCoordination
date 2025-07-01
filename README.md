@@ -5,4 +5,4 @@ by Flavio Junqueira and Benjamin Reed. The additional code is taken directly fro
 after running the program are provided in the resources folder. 
 
 
-[Taken from Flavio-Junqueira's Repo] (https://github.com/fpj/zookeeper-book-example/tree/master)
+[Taken from Flavio-Junqueira's Repo](https://github.com/fpj/zookeeper-book-example/tree/master)
